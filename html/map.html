@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alerts</title>
+    <link rel="stylesheet" href="leaflet.css"/>
+    <script src="leaflet.js"></script>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0px;
+        }
+        #mapid { 
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+    
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function(){
+
+
+            const Stadia_AlidadeSmooth = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
+	                                                maxZoom: 20,
+	                                                attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+                                                    });
+
+            const Stadia_AlidadeSmoothDark = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+                                                        maxZoom: 20,
+                                                        attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+                                                        });
+
+            const OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                                    maxZoom: 19,
+                                                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                                    });
+
+            let GEOJSON
+            // initialize Leaflet
+            const map = L.map('mapid', {
+                worldCopyJump: true,
+                layers: [OpenStreetMap_Mapnik],
+                center: [0, 0],
+                zoom: 2,
+            });
+
+            const baseMaps = {
+                "Default": OpenStreetMap_Mapnik,
+                "Smooth": Stadia_AlidadeSmooth,
+                "Smooth Dark": Stadia_AlidadeSmoothDark
+            };
+
+            L.control.layers(baseMaps).addTo(map);
+
+            // add the OpenStreetMap tiles
+            // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            //     maxZoom: 19,
+            //     attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+            // }).addTo(map);
+
+            // show the scale bar on the lower left corner
+            L.control.scale().addTo(map);
+
+            map.on('click', function(e) {
+                let zoom = map.getZoom()    
+                let center = map.getCenter()
+                console.log(`The center is at ${center} with a zoom of ${zoom}` )       
+            });
+
+            // // show a marker on the map
+            // L.marker({lon: 0, lat: 0}).bindPopup('The center of the world').addTo(map);
+            var request = new XMLHttpRequest()
+
+            request.open('GET', '/', true)
+            request.onload = function() {
+                // Begin accessing JSON data here
+                let data = JSON.parse(this.response)
+
+                if (request.status >= 200 && request.status < 400) {
+                    // 
+                    L.geoJSON(data, {
+
+                        filter: function (feature, layer) {
+                            if (feature.properties) {
+                                // If the property "underConstruction" exists and is true, return false (don't render features under construction)
+                                return feature.properties.underConstruction !== undefined ? !feature.properties.underConstruction : true;
+                            }
+                            return false;
+                        },
+
+                        onEachFeature: onEachAlertFeature
+                        }).addTo(map)
+
+                } else {
+                    console.log('error')
+                }
+            }
+            request.send()
+
+            // L.geoJSON(GEOJSON, {
+
+            //     filter: function (feature, layer) {
+            //         if (feature.properties) {
+            //             // If the property "underConstruction" exists and is true, return false (don't render features under construction)
+            //             return feature.properties.underConstruction !== undefined ? !feature.properties.underConstruction : true;
+            //         }
+            //         return false;
+            //     },
+
+            //     onEachFeature: onEachAlertFeature
+            //     }).addTo(map);
+
+            function onEachAlertFeature(feature, layer) {
+                let popupContent = "<p>" + feature.properties.event + "<br>" +
+                    feature.properties.headline +
+                    "</p>" +
+                    "<p>" + feature.properties.description +
+                    "</p>";
+
+                if (feature.properties && feature.properties.popupContent) {
+                popupContent += feature.properties.popupContent;
+                }
+
+                layer.bindPopup(popupContent);
+            }
+        });
+    </script>
+</head>
+<body>
+    <div id="mapid"></div>
+</body>
+</html>
