@@ -6,6 +6,7 @@
     <title>Alerts</title>
     <link rel="stylesheet" href="leaflet.css"/>
     <script src="leaflet.js"></script>
+    <script src="leaflet-pip.js"></script>
     <style>
         html, body {
             height: 100%;
@@ -66,12 +67,27 @@
             map.on('click', function(e) {
                 let zoom = map.getZoom()    
                 let center = map.getCenter()
-                console.log(`The center is at ${center} with a zoom of ${zoom}` )       
+                let pip = leafletPip.pointInLayer([e.latlng.lng, e.latlng.lat], plotableNOAAalerts)
+                // console.log( pip )
+                plotableNOAAalerts.resetStyle()
+                for(let i = 0; i< pip.length; i++){
+                    pip[i].setStyle({
+                        fillColor: 'red',
+                        weight: 2,
+                        opacity: 1,
+                        color: 'black',
+                        dashArray: '3',
+                        fillOpacity: 0.7
+                    })
+                }
+
             });
 
             // // show a marker on the map
             // L.marker({lon: 0, lat: 0}).bindPopup('The center of the world').addTo(map);
-            var request = new XMLHttpRequest()
+            let plotableNOAAalerts
+
+            const request = new XMLHttpRequest()
 
             request.open('GET', '/', true)
             request.onload = function() {
@@ -80,7 +96,7 @@
 
                 if (request.status >= 200 && request.status < 400) {
                     // 
-                    L.geoJSON(data, {
+                    plotableNOAAalerts = L.geoJSON(data, {
 
                         filter: function (feature, layer) {
                             if (feature.properties) {
@@ -91,7 +107,9 @@
                         },
 
                         onEachFeature: onEachAlertFeature
-                        }).addTo(map)
+                        })
+                        
+                        plotableNOAAalerts.addTo(map)
 
                 } else {
                     console.log('error')

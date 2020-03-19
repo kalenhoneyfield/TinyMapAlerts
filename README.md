@@ -8,3 +8,4 @@ Goals:
 * Enable to the user to define risk levels of items on the map, and the type(s) of alerts they receive
 
 Base mapping tool now, is leaflet.js 
+Addtional libs include: leaf-pip.js
