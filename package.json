@@ -1,7 +1,7 @@
 {
   "name": "apiserver",
   "version": "0.0.1",
-  "description": "api to provide data to a front in map",
+  "description": "api to provide data to a front end map",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

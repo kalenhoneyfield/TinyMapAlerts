@@ -1,4 +1,4 @@
-#TinyMapAlerts 0.0.1
+## TinyMapAlerts 0.0.1
 
 Pull down weather and other risk events from public APIs and plot them on the map.
 
