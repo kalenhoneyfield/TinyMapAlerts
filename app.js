@@ -27,6 +27,10 @@ app.use(bodyParser.json())
 app.use(express.static('html'))
 
 app.get('/', (req, res) => {
+    res.status(404).send()
+})
+
+app.get('/weather', (req, res) => {
     res.json(alerts)
 })
 

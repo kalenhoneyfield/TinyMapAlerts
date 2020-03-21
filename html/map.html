@@ -85,37 +85,54 @@
 
             // // show a marker on the map
             // L.marker({lon: 0, lat: 0}).bindPopup('The center of the world').addTo(map);
-            let plotableNOAAalerts
+            let plotableNOAAalerts = []
 
-            const request = new XMLHttpRequest()
+            setInterval(() => {
+                getAndPlotAlerts()
+            }, 30000)
+                getAndPlotAlerts()
+                
+            function getAndPlotAlerts(){
+                // if(plotableNOAAalerts){
+                //     map.removeLayer(plotableNOAAalerts)
+                // }
+                const request = new XMLHttpRequest()
 
-            request.open('GET', '/', true)
-            request.onload = function() {
-                // Begin accessing JSON data here
-                let data = JSON.parse(this.response)
+                request.open('GET', '/weather', true)
+                request.onload = function() {
+                    // Begin accessing JSON data here
+                    let data = JSON.parse(this.response)
 
-                if (request.status >= 200 && request.status < 400) {
-                    // 
-                    plotableNOAAalerts = L.geoJSON(data, {
-
-                        filter: function (feature, layer) {
-                            if (feature.properties) {
-                                // If the property "underConstruction" exists and is true, return false (don't render features under construction)
-                                return feature.properties.underConstruction !== undefined ? !feature.properties.underConstruction : true;
-                            }
-                            return false;
-                        },
-
-                        onEachFeature: onEachAlertFeature
-                        })
+                    if (request.status >= 200 && request.status < 400) {
+                        // 
                         
-                        plotableNOAAalerts.addTo(map)
+                        for(let i = 0; i < data.length; i++){
+                            plotableNOAAalerts[i] = L.geoJSON(data[i], {
 
-                } else {
-                    console.log('error')
+                            filter: function (feature, layer) {
+                                if(map.hasLayer(plotableNOAAalerts[i])){
+                                    return false
+                                }
+                                console.log( map.hasLayer(plotableNOAAalerts[i]) )
+                                return true
+                            },
+
+                            onEachFeature: onEachAlertFeature
+                            })
+
+                            plotableNOAAalerts[i].addTo(map)
+                        }
+
+
+                    } else {
+                        console.log('error')
+                    }
                 }
+                request.send()
+                // console.log('Updated weather alerts ' + new Date())
+                // console.log(plotableNOAAalerts)
             }
-            request.send()
+
 
             // L.geoJSON(GEOJSON, {
 
