@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="leaflet.css"/>
     <script src="leaflet.js"></script>
     <script src="leaflet-pip.js"></script>
+    <script src="api.js"></script>
+    <script src="cookieMonster.js"></script>
     <style>
         html, body {
             height: 100%;
@@ -20,6 +22,25 @@
     
     
     <script>
+        const weatherAlertStyle = {
+                        fillColor: '#c72058',
+                        weight: 2,
+                        opacity: 0.7,
+                        color: 'black',
+                        dashArray: '3',
+                        fillOpacity: 0.2,
+                        lineJoin: 'bevel'
+        }
+        let lastPos = {
+            "lat": getCookie('lat'),
+            "lng": getCookie("lng"),
+            "zoom": getCookie("zoom")
+        }
+        console.log( document.cookie )
+        console.log(`last position ${JSON.stringify(lastPos)}`)
+  
+                //= getCookie("center")
+        
         document.addEventListener("DOMContentLoaded", function(){
 
 
@@ -40,11 +61,16 @@
 
             let GEOJSON
             // initialize Leaflet
+            if(!lastPos.lat){
+                lastPos["lat"] = 0
+                lastPos["lng"] = 0
+                lastPos["zoom"] = 2
+            }
             const map = L.map('mapid', {
                 worldCopyJump: true,
                 layers: [OpenStreetMap_Mapnik],
-                center: [0, 0],
-                zoom: 2,
+                center: [lastPos.lat, lastPos.lng],
+                zoom: lastPos["zoom"],
             });
 
             const baseMaps = {
@@ -67,25 +93,32 @@
             map.on('click', function(e) {
                 let zoom = map.getZoom()    
                 let center = map.getCenter()
-                let pip = leafletPip.pointInLayer([e.latlng.lng, e.latlng.lat], plotableNOAAalerts)
-                // console.log( pip )
-                plotableNOAAalerts.resetStyle()
-                for(let i = 0; i< pip.length; i++){
-                    pip[i].setStyle({
-                        fillColor: 'red',
-                        weight: 2,
-                        opacity: 1,
-                        color: 'black',
-                        dashArray: '3',
-                        fillOpacity: 0.7
-                    })
-                }
-
-            });
+                // let pip = leafletPip.pointInLayer([e.latlng.lng, e.latlng.lat], plotableNOAAalerts)
+                // // console.log( pip )
+                // plotableNOAAalerts.resetStyle()
+                // for(let i = 0; i< pip.length; i++){
+                //     pip[i].setStyle({
+                //         fillColor: 'red',
+                //         weight: 2,
+                //         opacity: 1,
+                //         color: 'black',
+                //         dashArray: '3',
+                //         fillOpacity: 0.7
+                //     })
+                // }
+                // let loc = map.locate({setView: true})
+                // console.log(loc)
+                setCookie("lat", center.lat, 2)
+                setCookie("lng", center.lng, 2)
+                setCookie("zoom", zoom, 2)
+                setCookie("center", zoom, 0)
+                console.log( document.cookie )
+            })
 
             // // show a marker on the map
             // L.marker({lon: 0, lat: 0}).bindPopup('The center of the world').addTo(map);
             let plotableNOAAalerts = []
+            let NOAALayers = L.layerGroup()
 
             setInterval(() => {
                 getAndPlotAlerts()
@@ -98,19 +131,21 @@
                 // }
                 const request = new XMLHttpRequest()
 
-                request.open('GET', '/weather', true)
+                request.open('GET', '/api/weather', true)
                 request.onload = function() {
                     // Begin accessing JSON data here
                     let data = JSON.parse(this.response)
 
                     if (request.status >= 200 && request.status < 400) {
                         // 
-                        
                         for(let i = 0; i < data.length; i++){
+                            // data[i]["type"] = "Feature"
                             plotableNOAAalerts[i] = L.geoJSON(data[i], {
 
                             filter: function (feature, layer) {
+
                                 if(map.hasLayer(plotableNOAAalerts[i])){
+                                    // console.log( plotableNOAAalerts[i] )
                                     return false
                                 }
                                 console.log( map.hasLayer(plotableNOAAalerts[i]) )
@@ -119,10 +154,11 @@
 
                             onEachFeature: onEachAlertFeature
                             })
-
-                            plotableNOAAalerts[i].addTo(map)
+                            plotableNOAAalerts[i]["weather"] = true
+                            // plotableNOAAalerts[i].addTo(map)
+                            NOAALayers.addLayer(plotableNOAAalerts[i].setStyle(weatherAlertStyle))
                         }
-
+                        NOAALayers.addTo(map)
 
                     } else {
                         console.log('error')
@@ -133,6 +169,36 @@
                 // console.log(plotableNOAAalerts)
             }
 
+            setInterval(() => {
+                map.eachLayer( (layer) => {
+                    if( layer.weather ){
+                        let id
+                        Object.keys(layer._layers).forEach((key) => {
+                            // id = key
+                            if( !isNaN(layer._layers[key].feature.id) ){
+                                getValidAlerts(layer._layers[key].feature.id, (data) => {
+                                if(!data){
+                                    console.log(`POINK : ${layer._layers[key].feature.id} ${new Date()}`)
+                                    map.removeLayer(layer)
+                                }
+                                console.log(data)
+                                })
+                            }
+
+                        })
+                        // console.log(id)
+                        // getValidAlerts(id, (data) => {
+                        //     if(!data){
+                                
+                        //     }
+                        //     console.log(data)
+                        // })
+                    }
+                    
+                    // console.log( NOAALayers.getLayers() )
+                })
+                
+            }, 30000);
 
             // L.geoJSON(GEOJSON, {
 
