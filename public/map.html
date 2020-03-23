@@ -36,8 +36,8 @@
             "lng": getCookie("lng"),
             "zoom": getCookie("zoom")
         }
-        console.log( document.cookie )
-        console.log(`last position ${JSON.stringify(lastPos)}`)
+        // console.log( document.cookie )
+        // console.log(`last position ${JSON.stringify(lastPos)}`)
   
                 //= getCookie("center")
         
@@ -90,7 +90,7 @@
             // show the scale bar on the lower left corner
             L.control.scale().addTo(map);
 
-            map.on('click', function(e) {
+            map.on('mouseup', function(e) {
                 let zoom = map.getZoom()    
                 let center = map.getCenter()
                 // let pip = leafletPip.pointInLayer([e.latlng.lng, e.latlng.lat], plotableNOAAalerts)
@@ -111,7 +111,6 @@
                 setCookie("lat", center.lat, 2)
                 setCookie("lng", center.lng, 2)
                 setCookie("zoom", zoom, 2)
-                setCookie("center", zoom, 0)
                 console.log( document.cookie )
             })
 
@@ -148,7 +147,7 @@
                                     // console.log( plotableNOAAalerts[i] )
                                     return false
                                 }
-                                console.log( map.hasLayer(plotableNOAAalerts[i]) )
+                                // console.log( map.hasLayer(plotableNOAAalerts[i]) )
                                 return true
                             },
 
@@ -181,7 +180,7 @@
                                     console.log(`POINK : ${layer._layers[key].feature.id} ${new Date()}`)
                                     map.removeLayer(layer)
                                 }
-                                console.log(data)
+                                // console.log(data)
                                 })
                             }
 

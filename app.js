@@ -1,8 +1,14 @@
 //required modules
 const express = require('express')
 const bodyParser = require('body-parser')
+const hbs = require('express-handlebars')
 const Sequelize = require('sequelize')
 const sequelize = require('./db/sequelize')
+
+
+//routes
+const baseRoute = require('./routes/index')
+const mapRoute = require('./routes/map')
 
 //pull ins
 const getAlerts = require('./bin/get_weatherTwo')
@@ -26,13 +32,27 @@ setInterval( () => {
 
 const app = express()
 
+// view engine setup
+app.set('view engine', 'hbs')
+
+app.engine( 'hbs', hbs( {
+  extname: 'hbs',
+  defaultView: 'default',
+  layoutsDir: __dirname + '/views/layouts/',
+  partialsDir: __dirname + '/views/partials/'
+}))
+
 app.use(bodyParser.json())
 
-app.use(express.static('html'))
+app.use(express.static('public'))
 
-app.get('/', (req, res) => {
-    res.status(404).send()
-})
+app.get('/', baseRoute)
+app.get('/map', baseRoute)
+app.get('/alerts', baseRoute)
+
+// app.get('/', (req, res) => {
+//     res.status(404).send()
+// })
 
 app.get('/api/weather', (req, res) => {
     // res.json(alerts)

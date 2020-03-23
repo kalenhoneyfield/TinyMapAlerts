@@ -1,0 +1,49 @@
+<script src="/js/api.js"></script>
+<script>
+    let validalerts 
+    getAllValidAlerts('', async (data) => { 
+        for(let i = 0; i < data.length; i++){
+            let tr = document.createElement("tr")
+            let th = document.createElement("th")
+            th.setAttribute("scope", "row");
+            let tdevent = document.createElement("td")
+            let tdloc = document.createElement("td")
+            let tdheadline = document.createElement("td")
+            let id = document.createTextNode(data[i].id)
+            let event = document.createTextNode(data[i].properties.event)
+            let areaDesc = document.createTextNode(data[i].properties.areaDesc)
+            let headline = document.createTextNode(data[i].properties.headline)
+            th.appendChild(id)
+            tdevent.appendChild(event)
+            tdloc.appendChild(areaDesc)
+            tdheadline.appendChild(headline)
+            tr.appendChild(th)
+            tr.appendChild(tdevent)
+            tr.appendChild(tdheadline)
+            tr.appendChild(tdloc)
+            
+            let element = document.getElementById("alerts")
+            element.appendChild(tr)
+        }
+
+        })
+</script>
+
+<div class='w-100 h-100 p-4 d-flex flex-fill'>
+
+  <table class="table table-striped table-dark table-hover">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Alert Type</th>
+      <th scope="col">Headline</th>
+      <th scope="col">Location</th>
+    </tr>
+  </thead>
+  <tbody id="alerts">
+
+  </tbody>
+</table>
+
+</div>
+

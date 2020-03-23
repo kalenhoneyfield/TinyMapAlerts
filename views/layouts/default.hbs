@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>TinyMap</title>
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <link rel="stylesheet" href="/css/bootstrap-darkly.css">
+    <style>
+      html,body{
+          height:100%;
+          margin: 0px;
+      }
+    </style>
+    <script src="/js/jquery-3.4.1.min.js"></script>
+    <script src="/js/popper-2.1.1.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+</head>
+<body class="{{template}}">
+  
+  <div class="container-fluid h-90 d-flex min-vh-100 flex-column">
+    {{> navbar}}
+	  {{{body}}}
+    {{> footer}}
+  </div>
+  
+</body>
+</html>

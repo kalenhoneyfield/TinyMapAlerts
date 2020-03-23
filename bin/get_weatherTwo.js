@@ -18,7 +18,7 @@ const options = {
             'Content-Type': 'application/json'
     },
         retry: {
-            'retries': 0
+            'retries': 2
     }
 }
 
