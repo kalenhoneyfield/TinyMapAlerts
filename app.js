@@ -20,12 +20,12 @@ const weatherAlerts = require('./models/weatherModel')
 let alerts = {}
 
 getAlerts((data) => {
-    console.log( data )
+    // console.log( data )
 })
 
 setInterval( () => {
         getAlerts((data) => {
-            console.log( data )
+            // console.log( data )
         })
     }, 300000)
 

@@ -40,7 +40,7 @@ client.get(options, (err, req, res, obj) => {
             //     data[i].geometry = { "type": "None" }
             // }
 
-            console.log(data[i].properties.id)
+            // console.log(data[i].properties.id)
             try {
                 [alert, created] = await weatherAlerts.findOrCreate({
                     where: { propertiesId: data[i].properties.id },
@@ -56,7 +56,7 @@ client.get(options, (err, req, res, obj) => {
                     }
 
             } catch (error) {
-                callback(error)
+                console.log(error)
             } finally {
                 callback('completed')
             }

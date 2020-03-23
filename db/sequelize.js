@@ -1,2 +1,4 @@
 const Sequelize = require('sequelize')
-module.exports = new Sequelize('sqlite:database.sqlite')
+module.exports = new Sequelize('sqlite:database.sqlite', {
+    logging: false
+})
