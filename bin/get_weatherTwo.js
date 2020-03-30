@@ -33,6 +33,7 @@ client.get(options, (err, req, res, obj) => {
     
         let alert
         let created
+        await updateValid()
         for(let i = 0; i < data.length; i++){
 
             // //fix the null values
@@ -64,13 +65,21 @@ client.get(options, (err, req, res, obj) => {
         }
     }
 
-    weatherAlerts.update({ valid: 0 }, {
-        where: {
-            expires: 
-            {
-                [Op.lt] : new Date()
-            }
-        }
-      })
+    async function updateValid(){
+        setTimeout(() => {
+            weatherAlerts.update({ valid: 0 }, {
+                where: {
+                    expires: 
+                    {
+                        [Op.lt] : new Date()
+                    },
+                    valid: 1
+                }
+            }).then((data) => {
+                console.log(`Number of records updated: ${data.length}`)
+            }) 
+        }, 2000);
+    }
+
 })
 

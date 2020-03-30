@@ -153,7 +153,7 @@ if( layer.weather ){
         if( !isNaN(layer._layers[key].feature.id) ){
             getValidAlerts(layer._layers[key].feature.id, (data) => {
             if(!data){
-                console.log(`POINK : ${layer._layers[key].feature.id} ${new Date()}`)
+                // console.log(`POINK : ${layer._layers[key].feature.id} ${new Date()}`)
                 map.removeLayer(layer)
             }
             // console.log(data)
