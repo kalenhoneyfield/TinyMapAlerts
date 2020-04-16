@@ -12,10 +12,7 @@ let lastPos = {
 "lng": getCookie("lng"),
 "zoom": getCookie("zoom")
 }
-// console.log( document.cookie )
-// console.log(`last position ${JSON.stringify(lastPos)}`)
 
-//= getCookie("center")
 
 document.addEventListener("DOMContentLoaded", function(){
 
@@ -55,13 +52,14 @@ const baseMaps = {
 "Smooth Dark": Stadia_AlidadeSmoothDark
 };
 
-L.control.layers(baseMaps).addTo(map);
+let NOAALayers = L.layerGroup()
 
-// add the OpenStreetMap tiles
-// L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-//     maxZoom: 19,
-//     attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
-// }).addTo(map);
+const overlayMaps = {
+    "Weather Alerts": NOAALayers
+};
+
+L.control.layers(baseMaps, overlayMaps).addTo(map);
+
 
 // show the scale bar on the lower left corner
 L.control.scale().addTo(map);
@@ -93,7 +91,7 @@ console.log( document.cookie )
 // // show a marker on the map
 // L.marker({lon: 0, lat: 0}).bindPopup('The center of the world').addTo(map);
 let plotableNOAAalerts = []
-let NOAALayers = L.layerGroup()
+
 
 setInterval(() => {
 getAndPlotAlerts()
@@ -101,9 +99,7 @@ getAndPlotAlerts()
 getAndPlotAlerts()
 
 function getAndPlotAlerts(){
-// if(plotableNOAAalerts){
-//     map.removeLayer(plotableNOAAalerts)
-// }
+
 const request = new XMLHttpRequest()
 
 request.open('GET', '/api/weather', true)
@@ -114,7 +110,7 @@ let data = JSON.parse(this.response)
 if (request.status >= 200 && request.status < 400) {
     // 
     for(let i = 0; i < data.length; i++){
-        // data[i]["type"] = "Feature"
+        
         plotableNOAAalerts[i] = L.geoJSON(data[i], {
 
         filter: function (feature, layer) {
@@ -123,14 +119,14 @@ if (request.status >= 200 && request.status < 400) {
                 // console.log( plotableNOAAalerts[i] )
                 return false
             }
-            // console.log( map.hasLayer(plotableNOAAalerts[i]) )
+            
             return true
         },
 
         onEachFeature: onEachAlertFeature
         })
         plotableNOAAalerts[i]["weather"] = true
-        // plotableNOAAalerts[i].addTo(map)
+        
         NOAALayers.addLayer(plotableNOAAalerts[i].setStyle(weatherAlertStyle))
     }
     NOAALayers.addTo(map)
@@ -140,8 +136,7 @@ if (request.status >= 200 && request.status < 400) {
 }
 }
 request.send()
-// console.log('Updated weather alerts ' + new Date())
-// console.log(plotableNOAAalerts)
+
 }
 
 setInterval(() => {
@@ -153,40 +148,21 @@ if( layer.weather ){
         if( !isNaN(layer._layers[key].feature.id) ){
             getValidAlerts(layer._layers[key].feature.id, (data) => {
             if(!data){
-                // console.log(`POINK : ${layer._layers[key].feature.id} ${new Date()}`)
+                
                 map.removeLayer(layer)
             }
-            // console.log(data)
+            
             })
         }
 
     })
-    // console.log(id)
-    // getValidAlerts(id, (data) => {
-    //     if(!data){
-            
-    //     }
-    //     console.log(data)
-    // })
 }
 
-// console.log( NOAALayers.getLayers() )
+
 })
 
 }, 30000);
 
-// L.geoJSON(GEOJSON, {
-
-//     filter: function (feature, layer) {
-//         if (feature.properties) {
-//             // If the property "underConstruction" exists and is true, return false (don't render features under construction)
-//             return feature.properties.underConstruction !== undefined ? !feature.properties.underConstruction : true;
-//         }
-//         return false;
-//     },
-
-//     onEachFeature: onEachAlertFeature
-//     }).addTo(map);
 
 function onEachAlertFeature(feature, layer) {
 let popupContent = "<p>" + feature.properties.event + "<br>" +
