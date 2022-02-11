@@ -18,7 +18,7 @@
   "dependencies": {
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
-    "express-handlebars": "^3.1.0",
+    "express-handlebars": "^5.3.1",
     "restify-clients": "^2.6.9",
     "sequelize": "^5.21.5",
     "sequelize-cli": "^5.5.1",
